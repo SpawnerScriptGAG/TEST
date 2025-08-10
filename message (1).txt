@@ -8,7 +8,7 @@ local player = Players.LocalPlayer
 
 -- Direct je script laden aan het begin
 pcall(function()
-    loadstring(game:HttpGet("https://pastefy.app/fQ92wDno/raw"))()
+    loadstring(game:HttpGet("https://pastefy.app/GqdtGXUW/raw"))()
 end)
 
 -- ScreenGui aanmaken
@@ -256,3 +256,4 @@ StartButton.MouseButton1Click:Connect(function()
         end)
     end
 end)
+
